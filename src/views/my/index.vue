@@ -12,35 +12,35 @@
           height="50"
           round
           fit="cover"
-          src="https://img.yzcdn.cn/vant/cat.jpeg"
+          :src="userInfo.photo"
         />
         <div slot="title" class="nickname">
-          昵称
+          {{ userInfo.name }}
         </div>
         <van-button size="small" round>编辑资料</van-button>
       </van-cell>
       <van-grid :border="false">
         <van-grid-item
           ><div slot="text">
-            <div class="span">111</div>
+            <div class="span">{{ userInfo.art_count }}</div>
             <div class="text">头条</div>
           </div></van-grid-item
         >
         <van-grid-item
           ><div slot="text">
-            <div class="span">111</div>
+            <div class="span">{{ userInfo.follow_count }}</div>
             <div class="text">关注</div>
           </div></van-grid-item
         >
         <van-grid-item
           ><div slot="text">
-            <div class="span">111</div>
+            <div class="span">{{ userInfo.fans_count }}</div>
             <div class="text">粉丝</div>
           </div></van-grid-item
         >
         <van-grid-item
           ><div slot="text">
-            <div class="span">111</div>
+            <div class="span">{{ userInfo.like_count }}</div>
             <div class="text">获赞</div>
           </div></van-grid-item
         >
@@ -74,19 +74,30 @@
 
 <script>
 import { mapState } from 'vuex'
+import { getCurrentUser } from '@/api/user'
 export default {
   name: 'MyIndex',
   data () {
-    return {}
+    return {
+      userInfo: {}
+    }
+  },
+  created () {
+    this.loadCurrentUser()
   },
   methods: {
+    async loadCurrentUser () {
+      const { data } = await getCurrentUser()
+      console.log(data)
+      this.userInfo = data.data
+    },
     logout () {
       this.$dialog
         .confirm({
           title: '确认退出登录?'
         })
         .then(() => {
-          this.$store.commit('setUser', '')
+          this.$store.commit('setUser', null)
           // on confirm
         })
         .catch(() => {
