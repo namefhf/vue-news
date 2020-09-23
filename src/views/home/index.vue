@@ -13,26 +13,54 @@
     </van-nav-bar>
     <!-- 频道tab -->
     <van-tabs v-model="active" class="channel-tabs">
+      <!-- hamburger按钮 -->
+      <div slot="nav-right" @click="isShow = !isShow" class="wap-nav-wrap">
+        <van-icon name="wap-nav" />
+      </div>
       <van-tab v-for="item in channels" :title="item.name" :key="item.id">
         <!-- 文章列表 -->
         <article-list :channel="item" />
       </van-tab>
+      <!-- 解决最后的tab被汉堡包遮住 -->
+      <div slot="nav-right" style="width:24px;height:44px;flex-shrink:0"></div>
     </van-tabs>
+    <!-- 频道列表弹出层popup -->
+    <van-popup
+      v-model="isShow"
+      get-container="body"
+      closeable
+      round
+      position="bottom"
+      class="channel-edit-popup"
+    >
+      <channel-edit
+        :user-channels="channels"
+        :activeIndex="active"
+        @close="isShow = !isShow"
+        @update-active="active = $event"
+      />
+      <!-- @update-active="active=$event" -->
+      <!-- @update-active="onUpdateActive"
+         -->
+    </van-popup>
   </div>
 </template>
 
 <script>
 import { getUserChannels } from '@/api/user'
 import ArticleList from './components/article-list'
+import ChannelEdit from './components/channel-edit'
 export default {
   name: 'HomeIndex',
   components: {
-    ArticleList
+    ArticleList,
+    ChannelEdit
   },
   data () {
     return {
       active: 0,
-      channels: []
+      channels: [],
+      isShow: true // 控制popup
     }
   },
   created () {
@@ -44,6 +72,10 @@ export default {
       // console.log(data.data.channels)
       this.channels = data.data.channels
     }
+    // onUpdateActive(index) {
+    //   console.log(index)
+    //   this.active = index
+    // }
   }
 }
 </script>
@@ -72,6 +104,17 @@ export default {
       height: 0.2rem;
       background-color: #ee0a24b5;
       border-radius: 0.08rem;
+    }
+  }
+  .wap-nav-wrap {
+    position: fixed;
+    right: 0;
+    height: 44px;
+    line-height: 50px;
+    background-color: white;
+    opacity: 0.9;
+    .van-icon {
+      color: #c8c9cc;
     }
   }
 }
