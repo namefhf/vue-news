@@ -8,6 +8,7 @@
         round
         type="danger"
         class="search-btn"
+        to="search"
         >搜索</van-button
       >
     </van-nav-bar>
@@ -48,8 +49,10 @@
 
 <script>
 import { getUserChannels } from '@/api/user'
+import { getItem } from '@/utils/storage'
 import ArticleList from './components/article-list'
 import ChannelEdit from './components/channel-edit'
+import { mapState } from 'vuex'
 export default {
   name: 'HomeIndex',
   components: {
@@ -60,18 +63,36 @@ export default {
     return {
       active: 0,
       channels: [],
-      isShow: true // 控制popup
+      isShow: false // 控制popup
     }
+  },
+  computed: {
+    ...mapState(['user'])
   },
   created () {
     this.loadChannels()
   },
   methods: {
     async loadChannels () {
-      const { data } = await getUserChannels()
-      // console.log(data.data.channels)
-      this.channels = data.data.channels
+      let channels = []
+      if (this.user) {
+        // 已登陆 获取线上数据
+        const { data } = await getUserChannels()
+        channels = data.data.channels
+      } else {
+        // 未登录或取本地存储
+        const localChannels = getItem('user-channels')
+        if (localChannels) {
+          channels = localChannels
+        } else {
+          // 本地存储不存在，请求获取默认推荐列表
+          const { data } = await getUserChannels()
+          channels = data.data.channels
+        }
+      }
+      this.channels = channels
     }
+
     // onUpdateActive(index) {
     //   console.log(index)
     //   this.active = index

@@ -21,7 +21,7 @@
         v-for="(item, index) in userChannels"
         :key="item.id"
         :text="item.name"
-        @click="onUserChannelClick(index)"
+        @click="onUserChannelClick(index, item)"
       >
       </van-grid-item>
     </van-grid>
@@ -43,7 +43,13 @@
 </template>
 
 <script>
-import { getAllChannels } from '@/api/channel'
+import {
+  getAllChannels,
+  addUserChannel,
+  deleteUserChannel
+} from '@/api/channel'
+import { mapState } from 'vuex'
+import { setItem } from '@/utils/storage'
 export default {
   name: 'ChannelEdit',
   props: {
@@ -71,21 +77,38 @@ export default {
       //   console.log('data: ', data)
       this.allChannels = data.data.channels
     },
-    onAdd (channel) {
-      console.log('channel: ', channel)
+    // 添加频道
+    async onAdd (channel) {
+      // console.log('channel: ', channel)
       this.userChannels.push(channel)
+      // 数据持久化
+      if (this.user) {
+        // 如果登陆 添加到数据库
+        const data = await addUserChannel({
+          channels: [
+            {
+              id: channel.id,
+              seq: this.userChannels.length
+            }
+          ]
+        })
+        console.log('data: ', data)
+      } else {
+        // 否则加到本地存储
+        setItem('user-channels', this.userChannels)
+      }
     },
-    onUserChannelClick (index) {
+    onUserChannelClick (index, channel) {
       // 编辑状态 删除频道
       if (this.isEdit && index !== 0) {
-        this.deleteChannel(index)
+        this.deleteChannel(index, channel)
       } else {
         // 非编辑状态 切换频道
         this.switchChannel(index)
       }
     },
     // 删除频道
-    deleteChannel (index) {
+    async deleteChannel (index, channel) {
       //   console.log('删除')
       // 如果删除的是当前激活频道之前的频道
       if (index <= this.activeIndex) {
@@ -93,6 +116,12 @@ export default {
         this.$emit('update-active', this.activeIndex - 1)
       }
       this.userChannels.splice(index, 1)
+      // 数据持久化
+      if (this.user) {
+        await deleteUserChannel(channel.id)
+      } else {
+        setItem('user-channels', this.userChannels)
+      }
     },
     // 切换频道
     switchChannel (index) {
@@ -104,6 +133,7 @@ export default {
     }
   },
   computed: {
+    ...mapState(['user']),
     // 推荐频道列表
     recommendChannels () {
       // 所有频道减去我的频道
