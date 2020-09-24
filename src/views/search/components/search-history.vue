@@ -1,14 +1,18 @@
 <template>
   <div class="search-history">
-    <van-cell title="搜索历史" value="内容">
+    <van-cell title="搜索历史">
       <div v-if="isDelete">
         <span>全部删除</span>
         &nbsp;&nbsp;
         <span>完成</span>
       </div>
-      <van-icon name="delete" v-else @click="isDelete = !isDelete" />
+      <van-icon v-else name="delete" @click="isDelete = !isDelete" />
     </van-cell>
-    <van-cell title="hello">
+    <van-cell
+      v-for="(item, index) in searchHistories"
+      :title="item"
+      :key="index"
+    >
       <van-icon name="close" />
     </van-cell>
   </div>
@@ -17,6 +21,14 @@
 <script>
 export default {
   name: 'searchHistory',
+  props: {
+    searchHistories: {
+      type: Array
+    }
+  },
+  created () {
+    console.log(this.searchHistories)
+  },
   data () {
     return {
       isDelete: false

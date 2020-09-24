@@ -1,12 +1,12 @@
 <template>
   <div class="search-suggestion">
     <van-cell
-      :title="item"
       icon="search"
       v-for="(item, index) in suggestions"
       :key="index"
+      @click="sendSearchText(item)"
     >
-      <div slot="title" v-html="highlight(str)"></div>
+      <div slot="title" v-html="highlight(item)"></div>
     </van-cell>
   </div>
 </template>
@@ -35,9 +35,12 @@ export default {
     // 高亮搜索词
     highlight (str) {
       return str.replace(
-        new RegExp(this.serchText, 'gi'),
+        new RegExp(this.searchText, 'gi'),
         `<span style="color:red">${this.searchText}</span>`
       )
+    },
+    sendSearchText (item) {
+      this.$emit('updateSearchText', item)
     }
   },
   watch: {
@@ -48,9 +51,11 @@ export default {
       // lodash实现函数防抖
       handler: debounce(async function () {
         console.log('hello')
-        const data = await getSearchSuggestions(this.searchText)
+        const { data } = await getSearchSuggestions({
+          q: this.searchText
+        })
         console.log('data: ', data)
-        this.suggestions = data.data.optios
+        this.suggestions = data.data.options
       }, 1000),
       // async handler() {
       //   console.log('hello')
