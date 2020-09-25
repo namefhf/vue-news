@@ -78,6 +78,7 @@ export default {
       if (this.user) {
         // 已登陆 获取线上数据
         const { data } = await getUserChannels()
+        // console.log(data)
         channels = data.data.channels
       } else {
         // 未登录或取本地存储

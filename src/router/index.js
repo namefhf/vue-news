@@ -15,6 +15,13 @@ const routes = [
     component: () => import('@/views/search/')
   },
   {
+    path: '/article/:articleId',
+    name: 'article',
+    props: true, // 将动态路由参数映射到组件的props中
+    component: () => import('@/views/article/')
+  },
+
+  {
     path: '/',
     component: () => import('@/views/layout/'),
     children: [
