@@ -15,3 +15,17 @@ export const getSeachResults = params => {
     params
   })
 }
+// 获取用户搜索历史
+export const getSearchHistories = () => {
+  return request({
+    method: 'GET',
+    url: '/app/v1_0/search/histories'
+  })
+}
+// 删除所有搜索历史
+export const deleteAllHistories = () => {
+  return request({
+    method: 'DELETE',
+    url: '/app/v1_0/search/histories'
+  })
+}

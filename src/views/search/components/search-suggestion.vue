@@ -50,7 +50,7 @@ export default {
     searchText: {
       // lodash实现函数防抖
       handler: debounce(async function () {
-        console.log('hello')
+        // console.log('hello')
         const { data } = await getSearchSuggestions({
           q: this.searchText
         })

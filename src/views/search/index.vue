@@ -21,7 +21,12 @@
       @updateSearchText="searchText = $event"
     />
     <!-- 搜索历史 -->
-    <search-history v-else :searchHistories="searchHistories" />
+    <search-history
+      v-else
+      :searchHistories="searchHistories"
+      @updatesearchtext="searchText = $event"
+      @update-histories="searchHistories = $event"
+    />
   </div>
 </template>
 
@@ -29,7 +34,9 @@
 import searchSuggestion from './components/search-suggestion'
 import searchHistory from './components/search-history'
 import searchResult from './components/search-result'
-// import { setItem } from '@/utils/storage'
+import { getItem, setItem } from '@/utils/storage'
+import { getSearchHistories } from '@/api/search'
+import { mapState } from 'vuex'
 export default {
   name: 'searchIndex',
   components: {
@@ -44,18 +51,38 @@ export default {
       searchHistories: []
     }
   },
+  created () {
+    this.loadSearchHistories()
+  },
+  computed: {
+    ...mapState(['user'])
+  },
   methods: {
     onSearch () {
       console.log('search')
+      // 数组不放重复项
       if (this.searchHistories.indexOf(this.searchText) === -1) {
         // 如果数组中没有searchText则unshift
         this.searchHistories.unshift(this.searchText)
       }
-
-      // setItem('search-histories', this.searchHistories)
+      // 搜索历史数据持久化 接口已完成登录时历史记录存储到线上
+      setItem('search-histories', this.searchHistories)
       this.isResultShow = true
     },
-    getSearchResult () {}
+    getSearchResult () {},
+    // 获取线上历史搜索记录
+    async loadSearchHistories () {
+      // 获取本地数据
+      const localHistories = getItem('search-histories') || []
+      if (this.user) {
+        const { data } = await getSearchHistories()
+        const onLineHistories = data.data.keywords
+        this.searchHistories.push(
+          ...new Set([...onLineHistories, ...localHistories])
+        )
+        console.log(this.searchHistories)
+      }
+    }
   }
 }
 </script>
