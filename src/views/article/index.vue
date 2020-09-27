@@ -44,14 +44,24 @@
         :name="article.is_collected ? 'star' : 'star-o'"
         @click="onCollect"
       />
-      <van-icon name="good-job-o" />
+      <van-icon
+        :name="article.attitude === 1 ? 'good-job' : 'good-job-o'"
+        :color="article.attitude === 1 ? 'red' : ''"
+        @click="onLike"
+      />
       <van-icon name="share" />
     </div>
   </div>
 </template>
 
 <script>
-import { getArticleById, addCollect, deleteCollect } from '@/api/article'
+import {
+  getArticleById,
+  addCollect,
+  deleteCollect,
+  addLike,
+  deleteLike
+} from '@/api/article'
 import './github-markdown.css'
 import { ImagePreview } from 'vant'
 import { addFollow, deleteFollow } from '@/api/user'
@@ -122,6 +132,22 @@ export default {
       }
       this.article.is_collected = !this.article.is_collected
       this.$toast.success(`${this.article.is_collected ? '' : '取消'}收藏成功`)
+    },
+    // 点赞
+    async onLike () {
+      this.$toast.loading({
+        message: '操作中....',
+        forbidclick: true
+      })
+      if (this.article.attitude === 1) {
+        await deleteLike(this.article.art_id)
+      } else {
+        await addLike(this.article.art_id)
+      }
+      this.article.attitude = this.article.attitude === 1 ? -1 : 1
+      this.$toast.success(
+        `${this.article.attitude === 1 ? '' : '取消'}点赞成功`
+      )
     }
   }
 }
