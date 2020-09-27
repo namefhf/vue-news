@@ -26,6 +26,7 @@
         :type="article.is_followed ? 'default' : 'danger'"
         class="follow-btn"
         :icon="article.is_followed ? '' : 'plus'"
+        @click="onFollow"
         >{{ article.is_followed ? '已关注' : '关注' }}</van-button
       >
     </van-cell>
@@ -39,6 +40,7 @@
 import { getArticleById } from '@/api/article'
 import './github-markdown.css'
 import { ImagePreview } from 'vant'
+import { addFollow, deleteFollow } from '@/api/user'
 export default {
   name: 'AticleIndex',
   props: {
@@ -77,6 +79,15 @@ export default {
           ImagePreview({ images: imgPaths, startPosition: i })
         }
       })
+    },
+    // 关注、取关用户
+    async onFollow () {
+      if (this.article.is_followed) {
+        await deleteFollow(this.article.aut_id)
+      } else {
+        await addFollow(this.article.aut_id)
+      }
+      this.article.is_followed = !this.article.is_followed
     }
   }
 }
