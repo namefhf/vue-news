@@ -26,6 +26,7 @@
         :type="article.is_followed ? 'default' : 'danger'"
         class="follow-btn"
         :icon="article.is_followed ? '' : 'plus'"
+        :loading="isLoading"
         @click="onFollow"
         >{{ article.is_followed ? '已关注' : '关注' }}</van-button
       >
@@ -51,7 +52,8 @@ export default {
   },
   data () {
     return {
-      article: {}
+      article: {},
+      isLoading: false
     }
   },
   created () {
@@ -82,11 +84,13 @@ export default {
     },
     // 关注、取关用户
     async onFollow () {
+      this.isLoading = true
       if (this.article.is_followed) {
         await deleteFollow(this.article.aut_id)
       } else {
         await addFollow(this.article.aut_id)
       }
+      this.isLoading = false
       this.article.is_followed = !this.article.is_followed
     }
   }
