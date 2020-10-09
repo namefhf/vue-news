@@ -2,6 +2,7 @@ import axios from 'axios'
 import store from '@/store/'
 import JSONbig from 'json-bigint'
 import { Toast } from 'vant'
+import router from '../router'
 const request = axios.create({
   baseURL: 'http://ttapi.research.itcast.cn/',
   transformResponse: [
@@ -16,6 +17,9 @@ const request = axios.create({
     }
   ]
 })
+const refreshTokenReq = axios.create({
+  baseURL: 'http://ttapi.research.itcast.cn/'
+})
 // 请求拦截器
 request.interceptors.request.use(config => {
   // console.log(123)
@@ -29,13 +33,33 @@ request.interceptors.response.use(
   response => {
     return response
   },
-  error => {
+  async error => {
     const status = error.response.status
     if (status === 400) {
       // 客户端参数错误
       Toast.fail('客户端请求参数异常')
     } else if (status === 401) {
       // token无效
+      const { user } = store.state
+      if (!user || !user.token) {
+        return redirectLogin()
+      }
+      try {
+        // 刷新token
+        const { data } = await refreshTokenReq({
+          url: '/app/v1_0/authorizations',
+          method: 'PUT',
+          headers: { Authorization: `Bearer ${user.refresh_token}` }
+        })
+        console.log(data)
+        user.token = data.data.token
+        store.commit('setUser', user)
+        // 重新发送失败的请求
+        console.log(error.config)
+        return request(error.config)
+      } catch (error) {
+        redirectLogin()
+      }
     } else if (status === 403) {
       // 无权限
       Toast.fail('无权限操作')
@@ -46,4 +70,7 @@ request.interceptors.response.use(
     return Promise.reject(error)
   }
 )
+function redirectLogin () {
+  router.replace('/login')
+}
 export default request
