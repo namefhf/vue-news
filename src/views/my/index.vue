@@ -17,7 +17,9 @@
         <div slot="title" class="nickname">
           {{ userInfo.name }}
         </div>
-        <van-button size="small" round>编辑资料</van-button>
+        <van-button size="small" round @click="$router.push('/user/profile')"
+          >编辑资料</van-button
+        >
       </van-cell>
       <van-grid :border="false">
         <van-grid-item

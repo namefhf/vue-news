@@ -20,6 +20,11 @@ const routes = [
     props: true, // 将动态路由参数映射到组件的props中
     component: () => import('@/views/article/')
   },
+  {
+    path: '/user/profile',
+    name: 'user-profile',
+    component: () => import('@/views/user-profile')
+  },
 
   {
     path: '/',
