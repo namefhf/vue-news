@@ -6,13 +6,18 @@
       <van-tabbar-item icon="video-o" to="/video">视频</van-tabbar-item>
       <van-tabbar-item icon="user-circle-o" to="/my">我的</van-tabbar-item>
     </van-tabbar>
-    <router-view></router-view>
+    <keep-alive>
+      <router-view></router-view>
+    </keep-alive>
   </div>
 </template>
 
 <script>
 export default {
   name: 'LayoutIndex',
+  mounted () {
+    this.$store.commit('addCachePage', 'LayoutIndex')
+  },
   data () {
     return {
       active: 0

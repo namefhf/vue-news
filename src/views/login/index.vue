@@ -99,6 +99,8 @@ export default {
         Toast.success('登录成功')
         // 将token存到vuex中
         this.$store.commit('setUser', data.data)
+        // 清除Layout组件的缓存
+        this.$store.commit('removeCachePage', 'LayoutIndex')
         this.$router.push('my')
       } catch (error) {
         console.log(error)
